@@ -1,1 +1,37 @@
+package unitTesting;
+
+public class nums {
+
+ int add(int a, int b) {
+        return a + b;
+    }
+}
+
+package unitTesting;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+class numsTesting {
+
+	@BeforeAll
+	static void setUpBeforeClass() throws Exception {
+	}
+
+	@Test
+	void testAddPositiveNumbers() {
+        nums adder = new nums();
+        int result = adder.add(3, 4);
+        assertEquals(7, result, "3 + 4 should equal 7");
+    }
+	
+	@Test
+	void testAddWithNegativeNumber() {
+        nums adder = new nums();
+        int result = adder.add(-5, 10);
+        assertEquals(5, result, "-5 + 10 should equal 5");
+    }
+}
 
