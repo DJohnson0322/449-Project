@@ -1,1 +1,66 @@
+package GUI;
 
+import javax.swing.*;
+import java.awt.*;
+
+@SuppressWarnings("serial")
+public class GUI extends JFrame {
+
+    public GUI() {
+        setTitle("Tic-Tac-Toe GUI");
+        setSize(400, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        setLayout(new BorderLayout());
+
+        // Title
+        JLabel title = new JLabel("Tic-Tac-Toe", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 20));
+        add(title, BorderLayout.NORTH);
+
+        JPanel boardPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                int w = getWidth();
+                int h = getHeight();
+
+                // Draw vertical lines
+                g.drawLine(w / 3, 0, w / 3, h);
+                g.drawLine(2 * w / 3, 0, 2 * w / 3, h);
+
+                // Draw horizontal lines
+                g.drawLine(0, h / 3, w, h / 3);
+                g.drawLine(0, 2 * h / 3, w, 2 * h / 3);
+            }
+        };
+        boardPanel.setPreferredSize(new Dimension(300, 300));
+        add(boardPanel, BorderLayout.CENTER);
+
+        JPanel optionsPanel = new JPanel();
+        optionsPanel.setLayout(new GridLayout(3, 1));
+
+        JCheckBox showMovesCheckBox = new JCheckBox("Show Moves");
+        optionsPanel.add(showMovesCheckBox);
+
+        JRadioButton playerX = new JRadioButton("Play as X");
+        JRadioButton playerO = new JRadioButton("Play as O");
+        ButtonGroup group = new ButtonGroup();
+        group.add(playerX);
+        group.add(playerO);
+
+        optionsPanel.add(playerX);
+        optionsPanel.add(playerO);
+
+        add(optionsPanel, BorderLayout.SOUTH);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            GUI gui = new GUI();
+            gui.setVisible(true);
+        });
+    }
+}
