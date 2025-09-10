@@ -14,7 +14,7 @@ public class GUI extends JFrame {
 
         setLayout(new BorderLayout());
 
-        // Title
+        // Title above board
         JLabel title = new JLabel("Tic-Tac-Toe", SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 20));
         add(title, BorderLayout.NORTH);
@@ -27,11 +27,11 @@ public class GUI extends JFrame {
                 int w = getWidth();
                 int h = getHeight();
 
-                // Draw vertical lines
+                // Vertical lines
                 g.drawLine(w / 3, 0, w / 3, h);
                 g.drawLine(2 * w / 3, 0, 2 * w / 3, h);
 
-                // Draw horizontal lines
+                // Horizontal lines
                 g.drawLine(0, h / 3, w, h / 3);
                 g.drawLine(0, 2 * h / 3, w, 2 * h / 3);
             }
