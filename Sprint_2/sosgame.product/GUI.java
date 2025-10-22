@@ -1,75 +1,136 @@
 package sosgame.product;
 
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import javax.swing.*;
 
 @SuppressWarnings("serial")
 public class GUI extends JFrame {
 
-    public static final int CELL_SIZE = 100;
-    public static final int GRID_WIDTH = 8;
-    public static final int GRID_WIDTH_HALF = GRID_WIDTH / 2;
+    public static final int CELL_SIZE = 60;
+    public static final int GRID_WIDTH = 4;
+    public static final int GRID_HALF = GRID_WIDTH / 2;
     public static final int CELL_PADDING = CELL_SIZE / 6;
     public static final int SYMBOL_SIZE = CELL_SIZE - CELL_PADDING * 2;
-    public static final int SYMBOL_STROKE_WIDTH = 8;
+    public static final int SYMBOL_STROKE_WIDTH = 4;
 
-    private int CANVAS_WIDTH;
-    private int CANVAS_HEIGHT;
+    private int canvasWidth, canvasHeight;
 
-    private GameBoardCanvas gameBoardCanvas;
     private Board board;
+    private GameBoardCanvas canvas;
+
+    private JRadioButton simpleGame, generalGame;
+    private JTextField boardSizeField;
+    private JButton startButton;
+    private JRadioButton blueS, blueO, redS, redO;
+    private JLabel turnLabel;
 
     public GUI(Board board) {
         this.board = board;
-        setContentPane();
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        pack();
         setTitle("SOS Game");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        add(createControlPanel(), BorderLayout.NORTH);
+
+        canvas = new GameBoardCanvas();
+        resizeCanvas(board.getSize());
+        add(canvas, BorderLayout.CENTER);
+
+        JPanel bottom = new JPanel();
+        turnLabel = new JLabel("Current turn: Blue");
+        bottom.add(turnLabel);
+        add(bottom, BorderLayout.SOUTH);
+
+        pack();
         setVisible(true);
     }
 
-    public Board getBoard() {
-        return board;
+    private JPanel createControlPanel() {
+        JPanel p = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.insets = new Insets(5, 8, 5, 8);
+
+        // Game type
+        JLabel sosLabel = new JLabel("SOS");
+        simpleGame = new JRadioButton("Simple game", true);
+        generalGame = new JRadioButton("General game");
+        ButtonGroup typeGroup = new ButtonGroup();
+        typeGroup.add(simpleGame);
+        typeGroup.add(generalGame);
+
+        // Board size
+        JLabel sizeLabel = new JLabel("Board size:");
+        boardSizeField = new JTextField(Integer.toString(board.getSize()), 3);
+        startButton = new JButton("Start");
+        startButton.addActionListener(e -> startNewGame());
+
+        // Blue player
+        JLabel blueLabel = new JLabel("Blue player");
+        blueS = new JRadioButton("S", true);
+        blueO = new JRadioButton("O");
+        ButtonGroup blueGroup = new ButtonGroup();
+        blueGroup.add(blueS);
+        blueGroup.add(blueO);
+
+        // Red player
+        JLabel redLabel = new JLabel("Red player");
+        redS = new JRadioButton("S", true);
+        redO = new JRadioButton("O");
+        ButtonGroup redGroup = new ButtonGroup();
+        redGroup.add(redS);
+        redGroup.add(redO);
+
+        // Layout row 1
+        c.gridx=0; c.gridy=0; p.add(sosLabel,c);
+        c.gridx=1; p.add(simpleGame,c);
+        c.gridx=2; p.add(generalGame,c);
+        c.gridx=3; p.add(sizeLabel,c);
+        c.gridx=4; p.add(boardSizeField,c);
+        c.gridx=5; p.add(startButton,c);
+
+        // Layout row 2
+        c.gridy=1; c.gridx=0; p.add(blueLabel,c);
+        c.gridx=1; p.add(blueS,c);
+        c.gridx=2; p.add(blueO,c);
+        c.gridx=3; p.add(redLabel,c);
+        c.gridx=4; p.add(redS,c);
+        c.gridx=5; p.add(redO,c);
+
+        return p;
     }
 
-    private void setContentPane() {
-        gameBoardCanvas = new GameBoardCanvas();
-        int size = board.getSize();
-        CANVAS_WIDTH = CELL_SIZE * size;
-        CANVAS_HEIGHT = CELL_SIZE * size;
-        gameBoardCanvas.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
-
-        Container contentPane = getContentPane();
-        contentPane.setLayout(new BorderLayout());
-        contentPane.add(gameBoardCanvas, BorderLayout.CENTER);
+    private void startNewGame() {
+        int size;
+        try {
+            size = Integer.parseInt(boardSizeField.getText());
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid board size.");
+            return;
+        }
+        if (size < 2) size = 2;
+        board = new Board(size, "");
+        resizeCanvas(size);
+        pack();
+        repaint();
     }
 
+    private void resizeCanvas(int size) {
+        canvasWidth = CELL_SIZE * size;
+        canvasHeight = CELL_SIZE * size;
+        canvas.setPreferredSize(new Dimension(canvasWidth, canvasHeight));
+    }
+
+    // ---------- drawing panel ----------
     class GameBoardCanvas extends JPanel {
-
         GameBoardCanvas() {
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    int rowSelected = e.getY() / CELL_SIZE;
-                    int colSelected = e.getX() / CELL_SIZE;
-
-                    String[] options = {"S", "O"};
-                    String choice = (String) JOptionPane.showInputDialog(
-                            GUI.this,
-                            "Choose a letter to place:",
-                            "Make Move",
-                            JOptionPane.QUESTION_MESSAGE,
-                            null,
-                            options,
-                            options[0]
-                    );
-
-                    if (choice != null && !choice.isEmpty()) {
-                        board.makeMove(rowSelected, colSelected, choice.charAt(0));
-                        repaint();
-                    }
+                    int r = e.getY() / CELL_SIZE;
+                    int c = e.getX() / CELL_SIZE;
+                    board.makeMove(r, c, 'a');
+                    repaint();
                 }
             });
         }
@@ -78,37 +139,33 @@ public class GUI extends JFrame {
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             setBackground(Color.WHITE);
-            drawGridLines(g);
-            drawBoard(g);
+            drawGrid(g);
+            drawMarks(g);
         }
 
-        private void drawGridLines(Graphics g) {
+        private void drawGrid(Graphics g) {
             g.setColor(Color.LIGHT_GRAY);
-            int size = board.getSize();
-
-            for (int row = 1; row < size; row++) {
-                g.fillRoundRect(0, CELL_SIZE * row - GRID_WIDTH_HALF,
-                        CANVAS_WIDTH - 1, GRID_WIDTH, GRID_WIDTH, GRID_WIDTH);
-            }
-            for (int col = 1; col < size; col++) {
-                g.fillRoundRect(CELL_SIZE * col - GRID_WIDTH_HALF, 0,
-                        GRID_WIDTH, CANVAS_HEIGHT - 1, GRID_WIDTH, GRID_WIDTH);
+            for (int i=1;i<board.getSize();i++) {
+                g.fillRoundRect(0, CELL_SIZE*i-GRID_HALF, canvasWidth, GRID_WIDTH, GRID_WIDTH, GRID_WIDTH);
+                g.fillRoundRect(CELL_SIZE*i-GRID_HALF, 0, GRID_WIDTH, canvasHeight, GRID_WIDTH, GRID_WIDTH);
             }
         }
 
-        private void drawBoard(Graphics g) {
-            g.setFont(new Font("SansSerif", Font.BOLD, SYMBOL_SIZE));
-            FontMetrics fm = g.getFontMetrics();
-            int size = board.getSize();
-
-            for (int row = 0; row < size; row++) {
-                for (int col = 0; col < size; col++) {
-                    char cell = board.getCell(row, col);
-                    if (cell == 'S' || cell == 'O') {
-                        int x = col * CELL_SIZE + (CELL_SIZE - fm.charWidth(cell)) / 2;
-                        int y = row * CELL_SIZE + ((CELL_SIZE + fm.getAscent()) / 2) - CELL_PADDING;
-                        g.setColor(cell == 'S' ? Color.RED : Color.BLUE);
-                        g.drawString(String.valueOf(cell), x, y);
+        private void drawMarks(Graphics g) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setStroke(new BasicStroke(SYMBOL_STROKE_WIDTH, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            for (int r=0;r<board.getSize();r++) {
+                for (int c=0;c<board.getSize();c++) {
+                    int v = board.getCell(r,c);
+                    int x = c*CELL_SIZE + CELL_PADDING;
+                    int y = r*CELL_SIZE + CELL_PADDING;
+                    if (v==1) {
+                        g2d.setColor(Color.RED);
+                        g2d.drawLine(x,y,x+SYMBOL_SIZE,y+SYMBOL_SIZE);
+                        g2d.drawLine(x+SYMBOL_SIZE,y,x,y+SYMBOL_SIZE);
+                    } else if (v==2) {
+                        g2d.setColor(Color.BLUE);
+                        g2d.drawOval(x,y,SYMBOL_SIZE,SYMBOL_SIZE);
                     }
                 }
             }
@@ -116,10 +173,6 @@ public class GUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            int size = 3;
-            String mode = "Simple Game";
-            new GUI(new Board(size, mode));
-        });
+        SwingUtilities.invokeLater(() -> new GUI(new Board(3,"")));
     }
 }
