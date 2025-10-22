@@ -51,7 +51,6 @@ public class GUI extends JFrame {
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(5, 8, 5, 8);
 
-        // Game type
         JLabel sosLabel = new JLabel("SOS");
         simpleGame = new JRadioButton("Simple game", true);
         generalGame = new JRadioButton("General game");
@@ -59,13 +58,11 @@ public class GUI extends JFrame {
         typeGroup.add(simpleGame);
         typeGroup.add(generalGame);
 
-        // Board size
         JLabel sizeLabel = new JLabel("Board size:");
         boardSizeField = new JTextField(Integer.toString(board.getSize()), 3);
         startButton = new JButton("Start");
         startButton.addActionListener(e -> startNewGame());
 
-        // Blue player
         JLabel blueLabel = new JLabel("Blue player");
         blueS = new JRadioButton("S", true);
         blueO = new JRadioButton("O");
@@ -73,7 +70,6 @@ public class GUI extends JFrame {
         blueGroup.add(blueS);
         blueGroup.add(blueO);
 
-        // Red player
         JLabel redLabel = new JLabel("Red player");
         redS = new JRadioButton("S", true);
         redO = new JRadioButton("O");
@@ -81,7 +77,6 @@ public class GUI extends JFrame {
         redGroup.add(redS);
         redGroup.add(redO);
 
-        // Layout row 1
         c.gridx=0; c.gridy=0; p.add(sosLabel,c);
         c.gridx=1; p.add(simpleGame,c);
         c.gridx=2; p.add(generalGame,c);
@@ -89,7 +84,6 @@ public class GUI extends JFrame {
         c.gridx=4; p.add(boardSizeField,c);
         c.gridx=5; p.add(startButton,c);
 
-        // Layout row 2
         c.gridy=1; c.gridx=0; p.add(blueLabel,c);
         c.gridx=1; p.add(blueS,c);
         c.gridx=2; p.add(blueO,c);
@@ -121,7 +115,6 @@ public class GUI extends JFrame {
         canvas.setPreferredSize(new Dimension(canvasWidth, canvasHeight));
     }
 
-    // ---------- drawing panel ----------
     class GameBoardCanvas extends JPanel {
         GameBoardCanvas() {
             addMouseListener(new MouseAdapter() {
