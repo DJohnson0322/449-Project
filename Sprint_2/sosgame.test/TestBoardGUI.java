@@ -23,12 +23,13 @@ public class TestBoardGUI {
     @Test
     public void testEmptyBoard() {
         System.out.println("=== Test: Empty Board GUI ===");
-        new GUI(board); 
+        GUI gui = new GUI();
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        gui.dispose();
     }
 
     @Test
@@ -37,12 +38,14 @@ public class TestBoardGUI {
         board.makeMove(0, 0, 'S');
         board.makeMove(1, 1, 'O');
         board.makeMove(2, 2, 'S');
-        new GUI(board); 
+
+        GUI gui = new GUI();
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        gui.dispose();
     }
 
     @Test
@@ -51,11 +54,13 @@ public class TestBoardGUI {
         Board largeBoard = new Board(5, "General Game");
         largeBoard.makeMove(0, 0, 'S');
         largeBoard.makeMove(4, 4, 'O');
-        new GUI(largeBoard);
+
+        GUI gui = new GUI();
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        gui.dispose();
     }
 }
