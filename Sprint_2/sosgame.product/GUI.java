@@ -1,118 +1,134 @@
 package sosgame.product;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
 
 @SuppressWarnings("serial")
 public class GUI extends JFrame {
 
-    public static final int CELL_SIZE = 60;
-    public static final int GRID_WIDTH = 4;
-    public static final int GRID_HALF = GRID_WIDTH / 2;
-    public static final int CELL_PADDING = CELL_SIZE / 6;
-    public static final int SYMBOL_SIZE = CELL_SIZE - CELL_PADDING * 2;
-    public static final int SYMBOL_STROKE_WIDTH = 4;
-
-    private int canvasWidth, canvasHeight;
+    private static final int CELL_SIZE = 50;
+    private static final int GRID_WIDTH = 2;
+    private static final int SYMBOL_SIZE = 36;
+    private static final Color BLUE_COLOR = new Color(0, 102, 204);
+    private static final Color RED_COLOR = new Color(204, 0, 0);
 
     private Board board;
     private GameBoardCanvas canvas;
 
-    private JRadioButton simpleGame, generalGame;
     private JTextField boardSizeField;
-    private JButton startButton;
-    private JRadioButton blueS, blueO, redS, redO;
     private JLabel turnLabel;
+    private JRadioButton simpleGameButton;
+    private JRadioButton generalGameButton;
+    private JRadioButton blueS, blueO, redS, redO;
+    private JButton startButton;
 
-    public GUI(Board board) {
-        this.board = board;
+    private boolean blueTurn = true;
+
+    public GUI() {
         setTitle("SOS Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-
-        add(createControlPanel(), BorderLayout.NORTH);
-
-        canvas = new GameBoardCanvas();
-        resizeCanvas(board.getSize());
-        add(canvas, BorderLayout.CENTER);
-
-        JPanel bottom = new JPanel();
-        turnLabel = new JLabel("Current turn: Blue");
-        bottom.add(turnLabel);
-        add(bottom, BorderLayout.SOUTH);
-
+        createControlPanel();
+        createCanvasPanel();
         pack();
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 
-    private JPanel createControlPanel() {
-        JPanel p = new JPanel(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(5, 8, 5, 8);
+    private void createControlPanel() {
+        JPanel topPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 10, 5, 10);
 
-        JLabel sosLabel = new JLabel("SOS");
-        simpleGame = new JRadioButton("Simple game", true);
-        generalGame = new JRadioButton("General game");
-        ButtonGroup typeGroup = new ButtonGroup();
-        typeGroup.add(simpleGame);
-        typeGroup.add(generalGame);
+        simpleGameButton = new JRadioButton("Simple game", true);
+        generalGameButton = new JRadioButton("General game");
+        ButtonGroup modeGroup = new ButtonGroup();
+        modeGroup.add(simpleGameButton);
+        modeGroup.add(generalGameButton);
 
-        JLabel sizeLabel = new JLabel("Board size:");
-        boardSizeField = new JTextField(Integer.toString(board.getSize()), 3);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        topPanel.add(new JLabel("SOS"), gbc);
+
+        gbc.gridx = 1;
+        topPanel.add(simpleGameButton, gbc);
+        gbc.gridx = 2;
+        topPanel.add(generalGameButton, gbc);
+
+        gbc.gridx = 3;
+        topPanel.add(new JLabel("Board size:"), gbc);
+
+        boardSizeField = new JTextField("8", 3);
+        gbc.gridx = 4;
+        topPanel.add(boardSizeField, gbc);
+
         startButton = new JButton("Start");
-        startButton.addActionListener(e -> startNewGame());
+        startButton.addActionListener(e -> startGame());
+        gbc.gridx = 5;
+        topPanel.add(startButton, gbc);
 
-        JLabel blueLabel = new JLabel("Blue player");
+        add(topPanel, BorderLayout.NORTH);
+    }
+
+    private void createCanvasPanel() {
+        canvas = new GameBoardCanvas();
+        canvas.setPreferredSize(new Dimension(400, 400));
+        add(canvas, BorderLayout.CENTER);
+
+        JPanel sidePanel = new JPanel(new GridLayout(1, 2, 50, 0));
+        sidePanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+        // Blue player controls
+        JPanel bluePanel = new JPanel(new GridLayout(3, 1));
+        bluePanel.add(new JLabel("Blue player", SwingConstants.CENTER));
         blueS = new JRadioButton("S", true);
         blueO = new JRadioButton("O");
         ButtonGroup blueGroup = new ButtonGroup();
         blueGroup.add(blueS);
         blueGroup.add(blueO);
+        bluePanel.add(blueS);
+        bluePanel.add(blueO);
 
-        JLabel redLabel = new JLabel("Red player");
+        // Red player controls
+        JPanel redPanel = new JPanel(new GridLayout(3, 1));
+        redPanel.add(new JLabel("Red player", SwingConstants.CENTER));
         redS = new JRadioButton("S", true);
         redO = new JRadioButton("O");
         ButtonGroup redGroup = new ButtonGroup();
         redGroup.add(redS);
         redGroup.add(redO);
+        redPanel.add(redS);
+        redPanel.add(redO);
 
-        c.gridx=0; c.gridy=0; p.add(sosLabel,c);
-        c.gridx=1; p.add(simpleGame,c);
-        c.gridx=2; p.add(generalGame,c);
-        c.gridx=3; p.add(sizeLabel,c);
-        c.gridx=4; p.add(boardSizeField,c);
-        c.gridx=5; p.add(startButton,c);
+        sidePanel.add(bluePanel);
+        sidePanel.add(redPanel);
 
-        c.gridy=1; c.gridx=0; p.add(blueLabel,c);
-        c.gridx=1; p.add(blueS,c);
-        c.gridx=2; p.add(blueO,c);
-        c.gridx=3; p.add(redLabel,c);
-        c.gridx=4; p.add(redS,c);
-        c.gridx=5; p.add(redO,c);
+        add(sidePanel, BorderLayout.WEST);
 
-        return p;
+        turnLabel = new JLabel("Current turn: blue", SwingConstants.CENTER);
+        add(turnLabel, BorderLayout.SOUTH);
     }
 
-    private void startNewGame() {
-        int size;
+    private void startGame() {
         try {
-            size = Integer.parseInt(boardSizeField.getText());
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Invalid board size.");
-            return;
-        }
-        if (size < 2) size = 2;
-        board = new Board(size, "");
-        resizeCanvas(size);
-        pack();
-        repaint();
-    }
+            int size = Integer.parseInt(boardSizeField.getText());
+            if (size < 3) {
+                JOptionPane.showMessageDialog(this, "Board size must be at least 3.", "Invalid Size", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
-    private void resizeCanvas(int size) {
-        canvasWidth = CELL_SIZE * size;
-        canvasHeight = CELL_SIZE * size;
-        canvas.setPreferredSize(new Dimension(canvasWidth, canvasHeight));
+            String mode = simpleGameButton.isSelected() ? "Simple Game" : "General Game";
+            board = new Board(size, mode);
+            canvas.setPreferredSize(new Dimension(size * CELL_SIZE, size * CELL_SIZE));
+            pack();
+            canvas.repaint();
+            blueTurn = true;
+            turnLabel.setText("Current turn: blue");
+
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(this, "Please enter a valid board size.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     class GameBoardCanvas extends JPanel {
@@ -120,45 +136,55 @@ public class GUI extends JFrame {
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    int r = e.getY() / CELL_SIZE;
-                    int c = e.getX() / CELL_SIZE;
-                    board.makeMove(r, c, 'a');
+                    if (board == null) return;
+
+                    int row = e.getY() / CELL_SIZE;
+                    int col = e.getX() / CELL_SIZE;
+
+                    if (board.getCell(row, col) != ' ') return;
+
+                    char letter = getCurrentPlayerLetter();
+                    board.makeMove(row, col, letter);
                     repaint();
+
+                    blueTurn = !blueTurn;
+                    turnLabel.setText("Current turn: " + (blueTurn ? "blue" : "red"));
                 }
             });
+        }
+
+        private char getCurrentPlayerLetter() {
+            if (blueTurn)
+                return blueS.isSelected() ? 'S' : 'O';
+            else
+                return redS.isSelected() ? 'S' : 'O';
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             setBackground(Color.WHITE);
-            drawGrid(g);
-            drawMarks(g);
-        }
+            if (board == null) return;
 
-        private void drawGrid(Graphics g) {
+            int size = board.getSize();
             g.setColor(Color.LIGHT_GRAY);
-            for (int i=1;i<board.getSize();i++) {
-                g.fillRoundRect(0, CELL_SIZE*i-GRID_HALF, canvasWidth, GRID_WIDTH, GRID_WIDTH, GRID_WIDTH);
-                g.fillRoundRect(CELL_SIZE*i-GRID_HALF, 0, GRID_WIDTH, canvasHeight, GRID_WIDTH, GRID_WIDTH);
-            }
-        }
 
-        private void drawMarks(Graphics g) {
-            Graphics2D g2d = (Graphics2D) g;
-            g2d.setStroke(new BasicStroke(SYMBOL_STROKE_WIDTH, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-            for (int r=0;r<board.getSize();r++) {
-                for (int c=0;c<board.getSize();c++) {
-                    int v = board.getCell(r,c);
-                    int x = c*CELL_SIZE + CELL_PADDING;
-                    int y = r*CELL_SIZE + CELL_PADDING;
-                    if (v==1) {
-                        g2d.setColor(Color.RED);
-                        g2d.drawLine(x,y,x+SYMBOL_SIZE,y+SYMBOL_SIZE);
-                        g2d.drawLine(x+SYMBOL_SIZE,y,x,y+SYMBOL_SIZE);
-                    } else if (v==2) {
-                        g2d.setColor(Color.BLUE);
-                        g2d.drawOval(x,y,SYMBOL_SIZE,SYMBOL_SIZE);
+            for (int i = 0; i <= size; i++) {
+                g.fillRect(i * CELL_SIZE - GRID_WIDTH / 2, 0, GRID_WIDTH, size * CELL_SIZE);
+                g.fillRect(0, i * CELL_SIZE - GRID_WIDTH / 2, size * CELL_SIZE, GRID_WIDTH);
+            }
+
+            g.setFont(new Font("SansSerif", Font.BOLD, SYMBOL_SIZE));
+            FontMetrics fm = g.getFontMetrics();
+
+            for (int row = 0; row < size; row++) {
+                for (int col = 0; col < size; col++) {
+                    char c = board.getCell(row, col);
+                    if (c != ' ') {
+                        int x = col * CELL_SIZE + (CELL_SIZE - fm.charWidth(c)) / 2;
+                        int y = row * CELL_SIZE + ((CELL_SIZE + fm.getAscent()) / 2) - 8;
+                        g.setColor(c == 'S' ? BLUE_COLOR : RED_COLOR);
+                        g.drawString(String.valueOf(c), x, y);
                     }
                 }
             }
@@ -166,6 +192,6 @@ public class GUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new GUI(new Board(3,"")));
+        SwingUtilities.invokeLater(GUI::new);
     }
 }
