@@ -79,7 +79,6 @@ public class GUI extends JFrame {
         JPanel sidePanel = new JPanel(new GridLayout(1, 2, 50, 0));
         sidePanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        // Blue player controls
         JPanel bluePanel = new JPanel(new GridLayout(3, 1));
         bluePanel.add(new JLabel("Blue player", SwingConstants.CENTER));
         blueS = new JRadioButton("S", true);
@@ -90,7 +89,6 @@ public class GUI extends JFrame {
         bluePanel.add(blueS);
         bluePanel.add(blueO);
 
-        // Red player controls
         JPanel redPanel = new JPanel(new GridLayout(3, 1));
         redPanel.add(new JLabel("Red player", SwingConstants.CENTER));
         redS = new JRadioButton("S", true);
@@ -144,7 +142,9 @@ public class GUI extends JFrame {
                     if (board.getCell(row, col) != ' ') return;
 
                     char letter = getCurrentPlayerLetter();
-                    board.makeMove(row, col, letter);
+                    char player = blueTurn ? 'B' : 'R';
+
+                    board.makeMove(row, col, letter, player);
                     repaint();
 
                     blueTurn = !blueTurn;
@@ -183,7 +183,12 @@ public class GUI extends JFrame {
                     if (c != ' ') {
                         int x = col * CELL_SIZE + (CELL_SIZE - fm.charWidth(c)) / 2;
                         int y = row * CELL_SIZE + ((CELL_SIZE + fm.getAscent()) / 2) - 8;
-                        g.setColor(c == 'S' ? BLUE_COLOR : RED_COLOR);
+
+                        char player = board.getPlayerAt(row, col);
+                        if (player == 'B') g.setColor(BLUE_COLOR);
+                        else if (player == 'R') g.setColor(RED_COLOR);
+                        else g.setColor(Color.BLACK);
+
                         g.drawString(String.valueOf(c), x, y);
                     }
                 }
