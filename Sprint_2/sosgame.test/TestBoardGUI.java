@@ -35,9 +35,9 @@ public class TestBoardGUI {
     @Test
     public void testNonEmptyBoard() {
         System.out.println("=== Test: Non-Empty Board GUI ===");
-        board.makeMove(0, 0, 'S');
-        board.makeMove(1, 1, 'O');
-        board.makeMove(2, 2, 'S');
+        board.makeMove(0, 0, 'S', 'B');
+        board.makeMove(1, 1, 'O', 'R');
+        board.makeMove(2, 2, 'S', 'B');
 
         GUI gui = new GUI();
         try {
@@ -52,8 +52,8 @@ public class TestBoardGUI {
     public void testLargerBoard() {
         System.out.println("=== Test: 5x5 Board GUI ===");
         Board largeBoard = new Board(5, "General Game");
-        largeBoard.makeMove(0, 0, 'S');
-        largeBoard.makeMove(4, 4, 'O');
+        largeBoard.makeMove(0, 0, 'S', 'B');
+        largeBoard.makeMove(4, 4, 'O', 'R');
 
         GUI gui = new GUI();
         try {
