@@ -29,9 +29,9 @@ public class TestBoardConsole {
     @Test
     public void testNonEmptyBoard() {
         System.out.println("=== Test: Non-Empty Board ===");
-        board.makeMove(0, 0, 'S');
-        board.makeMove(1, 1, 'O');
-        board.makeMove(2, 2, 'S');
+        board.makeMove(0, 0, 'S', 'B'); // Blue player
+        board.makeMove(1, 1, 'O', 'R'); // Red player
+        board.makeMove(2, 2, 'S', 'B'); // Blue player
         new Console(board).displayBoard();
     }
 
@@ -39,8 +39,8 @@ public class TestBoardConsole {
     public void testDifferentBoardSize() {
         System.out.println("=== Test: 5x5 Board ===");
         Board largeBoard = new Board(5, "General Game");
-        largeBoard.makeMove(0, 0, 'S');
-        largeBoard.makeMove(4, 4, 'O');
+        largeBoard.makeMove(0, 0, 'S', 'B');
+        largeBoard.makeMove(4, 4, 'O', 'R');
         new Console(largeBoard).displayBoard();
     }
 }
