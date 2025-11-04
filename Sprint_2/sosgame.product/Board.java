@@ -53,10 +53,10 @@ public class Board {
 
     public void makeMove(int row, int column, char letter, char player) {
         if (row < 0 || row >= size || column < 0 || column >= size) return;
-        if (grid[row][column] != ' ') return; // Prevent overwriting
-        if (letter != 'S' && letter != 'O') return; // Only allow S or O
+        if (grid[row][column] != ' ') return; 
+        if (letter != 'S' && letter != 'O') return; 
 
         grid[row][column] = letter;
-        playerColors[row][column] = player; // Track who placed it
+        playerColors[row][column] = player; 
     }
 }
